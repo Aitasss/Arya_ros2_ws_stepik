@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = 'my_turtle_controller'
+package_name = 'my_service_server'
 
 setup(
     name=package_name,
@@ -13,18 +13,19 @@ setup(
     ],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='igsp-01',
-    maintainer_email='igsp-01@todo.todo',
+    maintainer='hrusha',
+    maintainer_email='hrusha@example.com',
     description='TODO: Package description',
     license='TODO: License declaration',
+    extras_require={
+        'test': [
+            'pytest',
+        ],
+    },
     entry_points={
         'console_scripts': [
-		'turtle_mover = my_turtle_controller.turtle_mover:main',
-        # Теперь добавляем для "восьмёрки":
-        'turtle_figure8 = my_turtle_controller.turtle_figure8:main',
-        'turtle_pose_follower = my_turtle_controller.turtle_pose_follower:main',
-    ],
-},
-
-
+		# Имя команды = пакет_папка.файл_без_py:функция_входа
+            'velocity_server = my_service_server.server_node:main'
+        ],
+    },
 )

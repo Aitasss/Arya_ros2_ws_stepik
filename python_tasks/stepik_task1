@@ -1,0 +1,12 @@
+import math
+x, y, theta = map(float, input().split())
+x_goal, y_goal = map(float, input().split())
+dx = x_goal - x
+dy = y_goal - y
+distance = math.sqrt(dx*dx + dy*dy)
+desired_angle = math.atan2(dy, dx)
+angle_error = desired_angle - math.radians(theta)
+good_angle = math.atan2(math.sin(angle_error), math.cos(angle_error))
+good_angle_gradus = math.degrees(good_angle)
+print(distance)
+print(good_angle_gradus)
