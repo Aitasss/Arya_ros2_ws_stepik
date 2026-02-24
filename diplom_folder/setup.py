@@ -14,7 +14,7 @@ setup(
         ('share/' + package_name, ['package.xml']),
           # Добавляем launch файлы
         (os.path.join('share', package_name, 'launch'), glob('launch/*.launch.py')),
-        # Добавляем конфиги если есть
+        # Добавляем конфиги
         (os.path.join('share', package_name, 'config'), glob('config/*.yaml')),
     ],
     install_requires=['setuptools'],
