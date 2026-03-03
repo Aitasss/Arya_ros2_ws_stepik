@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<robot name="my_robot">
+
+  <!-- Центр робота (всегда 0,0,0 в системе координат робота) -->
+  <link name="base_link"/>
+
+  <!-- Физическое крепление камеры -->
+  <link name="camera_link"/>
+
+  <!-- Соединение: камера прикреплена к base_link -->
+  <joint name="camera_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="camera_link"/>
+    <!-- 
+      xyz: где камера относительно центра робота (в метрах)
+      rpy: поворот камеры (roll pitch yaw) в радианах
+      ПРИМЕР: камера на 10 см впереди, по центру, на 20 см выше
+    -->
+    <origin xyz="0.1 0 0.2" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Технический фрейм камеры (то же место, но с именем default_cam) -->
+  <link name="default_cam"/>
+  <joint name="camera_alias" type="fixed">
+    <parent link="camera_link"/>
+    <child link="default_cam"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+</robot>

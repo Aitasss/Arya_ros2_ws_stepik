@@ -16,6 +16,8 @@ setup(
         (os.path.join('share', package_name, 'launch'), glob('launch/*.launch.py')),
         # Добавляем конфиги
         (os.path.join('share', package_name, 'config'), glob('config/*.yaml')),
+        #Связываем камеру с роботом
+        (os.path.join('share', package_name, 'urdf'), glob('urdf/*')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
