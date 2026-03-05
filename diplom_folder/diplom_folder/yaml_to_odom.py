@@ -4,18 +4,22 @@ from rclpy.node import Node
 from tf2_ros import TransformBroadcaster
 from geometry_msgs.msg import TransformStamped
 import yaml
-import os
 from nav_msgs.msg import Odometry
 from tf_transformations import quaternion_from_euler
+import os
+from ament_index_python.packages import get_package_share_directory
 
 class YamlToOdom(Node):
     def __init__(self):
         super().__init__('yaml_to_odom')
         
         self.tf_broadcaster = TransformBroadcaster(self)
-        self.yaml_file = '/home/igsp-01/ros2_ws_arya/src/Arya_ros2_ws_stepik/diplom_folder/config/tag_positions.yaml'
         
-        # Подписываемся на одометрию (чтобы знать положение робота)
+        # Путь к YAML
+        pkg_dir = get_package_share_directory('diplom_folder')
+        self.yaml_file = os.path.join(pkg_dir, 'config', 'tag_positions.yaml')
+        
+        # Подписка на одометрию
         self.odom_sub = self.create_subscription(
             Odometry,
             '/odom',
@@ -23,9 +27,8 @@ class YamlToOdom(Node):
             10)
         
         self.current_odom = None
-        self.tag_position = None
         
-        # Таймер для публикации трансформации
+        # Таймер для публикации трансформации (10 Hz)
         self.timer = self.create_timer(0.1, self.publish_transform)
         
         self.get_logger().info('YAML to Odom node started')
@@ -46,50 +49,33 @@ class YamlToOdom(Node):
     def publish_transform(self):
         # Читаем положение тега из YAML
         tag = self.read_tag_yaml()
-        if not tag or not self.current_odom:
+        if not tag:
             return
             
-        # Вычисляем map → odom на основе положения тега и одометрии
-        # Это сложная часть - нужно учитывать, где тег в мире
-        # Пока публикуем фиксированную трансформацию для теста
-
         t = TransformStamped()
         t.header.stamp = self.get_clock().now().to_msg()
         t.header.frame_id = 'map'
         t.child_frame_id = 'odom'
         
-        # Берём позицию из YAML
+        # Позиция
         pos = tag['position']
-        t.transform.translation.x = pos['x']
-        t.transform.translation.y = pos['y']
-        t.transform.translation.z = pos['z']
+        t.transform.translation.x = float(pos['x'])
+        t.transform.translation.y = float(pos['y'])
+        t.transform.translation.z = float(pos['z'])
         
-        # Углы Эйлера (roll, pitch, yaw) в радианах
-        roll = 0.0    # крен
-        pitch = 0.0   # тангаж
-        yaw = 0.0     # рысканье
-
-        # Берём углы Эйлера из YAML (в градусах)
+        # Ориентация (углы Эйлера в градусах → радианы → кватернион)
         orient = tag['orientation']
-        roll_deg = orient['roll_deg']
-        pitch_deg = orient['pitch_deg']
-        yaw_deg = orient['yaw_deg']
-
-        # Переводим в радианы
-        roll = roll_deg * 3.14159 / 180.0
-        pitch = pitch_deg * 3.14159 / 180.0
-        yaw = yaw_deg * 3.14159 / 180.0
-
-        # Преобразуем в кватернион
-        q = quaternion_from_euler(roll, pitch, yaw)
+        roll = float(orient['roll_deg']) * 3.14159 / 180.0
+        pitch = float(orient['pitch_deg']) * 3.14159 / 180.0
+        yaw = float(orient['yaw_deg']) * 3.14159 / 180.0
         
+        q = quaternion_from_euler(roll, pitch, yaw)
         t.transform.rotation.x = q[0]
         t.transform.rotation.y = q[1]
         t.transform.rotation.z = q[2]
         t.transform.rotation.w = q[3]
         
         self.tf_broadcaster.sendTransform(t)
-        self.get_logger().debug('Published map → odom transform')
 
 def main(args=None):
     rclpy.init(args=args)
