@@ -2,7 +2,7 @@ apriltag:
   ros__parameters:
     image_transport: raw
     family: 36h11
-    size: 0.15
+    size: 0.2
     max_hamming: 0
     detector:
       threads: 2
@@ -13,5 +13,5 @@ apriltag:
     publish_tf: true
     tag:
       ids: [3]
-      frames: [tag_150mm]
-      sizes: [0.15]
+      frames: [tag_200mm]
+      sizes: [0.2]

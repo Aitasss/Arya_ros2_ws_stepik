@@ -13,7 +13,7 @@ def generate_launch_description():
             ],
             parameters=[{
                 'family': '36h11',
-                'size': 0.15,
+                'size': 0.2,
                 'max_hamming': 0,
                 'publish_tf': True,
                 'image_transport': 'raw'

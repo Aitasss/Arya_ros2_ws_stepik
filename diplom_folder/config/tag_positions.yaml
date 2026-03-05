@@ -1,0 +1,12 @@
+tag:
+  id: 3
+  family: tag36h11
+  position:
+    x: 0.0
+    y: 0.0
+    z: 1.0
+  orientation:
+    roll_deg: 0    # крен в градусах
+    pitch_deg: 0   # тангаж в градусах
+    yaw_deg: 0     # рысканье в градусах
+  timestamp: '2026-03-05T10:30:00'

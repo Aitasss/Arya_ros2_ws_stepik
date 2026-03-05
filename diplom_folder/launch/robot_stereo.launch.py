@@ -44,17 +44,17 @@ def generate_launch_description():
         ExecuteProcess(
             cmd=[
                 'ros2', 'run', 'tf2_ros', 'static_transform_publisher',
-                '--x', '2.0',        # тег в 2 метрах по X от угла комнаты
-                '--y', '1.5',        # тег в 1.5 метрах по Y
-                '--z', '1.0',        # тег на высоте 1 метр
+                '--x', '0',        # тег по X 
+                '--y', '0',        # тег  по Y
+                '--z', '1.0',        # тег по Z
                 '--yaw', '0',
                 '--pitch', '0',
                 '--roll', '0',
                 '--frame-id', 'map',
-                '--child-frame-id', 'tag36h11:3'   # ID твоего тега
+                '--child-frame-id', 'tag36h11:3'   # ID тега
             ],
             output='screen'
-        )
+        ),
 
         # 4. Rviz2 для визуализации
         Node(
@@ -62,5 +62,19 @@ def generate_launch_description():
             executable='rviz2',
             name='rviz2',
             output='screen'
-        )
+        ),
+        #5. Запуск узда для записи в YAML
+        Node(
+            package = 'diplom_folder',
+            executable = 'tag_to_yaml',
+            name = 'tag_to_yaml',
+            output = 'screen'
+        ),
+        #6. Запуск узла для чтения YAML и публикации map -> odom
+        Node(
+            package = 'diplom_folder',
+            executable = 'yaml_to_odom',
+            name = 'yaml_to_odom',
+            output = 'screen'
+        ),
     ])
