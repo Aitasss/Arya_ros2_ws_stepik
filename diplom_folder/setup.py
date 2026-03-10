@@ -28,7 +28,8 @@ setup(
     entry_points={
         'console_scripts': [
             'tag_to_yaml = diplom_folder.tag_to_yaml:main',
-            'yaml_to_odom = diplom_folder.yaml_to_odom:main',
+            'map_to_tag_publisher = diplom_folder.map_to_tag_publisher:main',
+            'map_to_base_publisher = diplom_folder.map_to_base_publisher:main',
         ],
     },
 )

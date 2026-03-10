@@ -29,7 +29,6 @@ class TagToYaml(Node):
     def quaternion_to_euler(self, x, y, z, w):
         """Преобразует кватернион в углы Эйлера (roll, pitch, yaw) в градусах"""
         (roll, pitch, yaw) = euler_from_quaternion([x, y, z, w])
-        # Переводим радианы в градусы
         roll_deg = roll * 180.0 / math.pi
         pitch_deg = pitch * 180.0 / math.pi
         yaw_deg = yaw * 180.0 / math.pi
@@ -39,7 +38,6 @@ class TagToYaml(Node):
         if not msg.detections:
             return
             
-        # Берём первое обнаружение
         detection = msg.detections[0]
         
         # Получаем кватернион из детекции
@@ -51,7 +49,7 @@ class TagToYaml(Node):
         # Преобразуем в углы Эйлера (градусы)
         roll_deg, pitch_deg, yaw_deg = self.quaternion_to_euler(qx, qy, qz, qw)
         
-        # Формируем данные для YAML с углами в градусах
+        # Формируем данные для YAML
         tag_data = {
             'tag': {
                 'id': detection.id,
@@ -73,7 +71,7 @@ class TagToYaml(Node):
         try:
             with open(self.yaml_file, 'w') as f:
                 yaml.dump(tag_data, f, default_flow_style=False)
-            self.get_logger().info(f'Tag {detection.id} saved to YAML (roll={roll_deg:.1f}, pitch={pitch_deg:.1f}, yaw={yaw_deg:.1f})')
+            self.get_logger().info(f'Tag {detection.id} saved to YAML')
         except Exception as e:
             self.get_logger().error(f'Failed to write YAML: {e}')
 

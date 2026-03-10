@@ -20,10 +20,10 @@ def generate_launch_description():
                 'image_height': 1080,
                 'framerate': 30.0,
                 'pixel_format': 'mjpeg2rgb',  
-                'camera_frame_id': 'default_cam',
+                'frame_id': 'camera_link',
                 'io_method': 'mmap',
                 'camera_info_url': f'file://{calibration_file}',  
-                'camera_name': 'default_cam'
+                'camera_name': 'camera_link'
             }]
         )
     ])

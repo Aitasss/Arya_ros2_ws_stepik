@@ -14,17 +14,9 @@
     <!-- 
       xyz: где камера относительно центра робота (в метрах)
       rpy: поворот камеры (roll pitch yaw) в радианах
-      ПРИМЕР: камера на 10 см впереди, по центру, на 20 см выше
     -->
     <origin xyz="0.0 0 1.5" rpy="0 0 0"/>
   </joint>
 
-  <!-- Технический фрейм камеры (то же место, но с именем default_cam) -->
-  <link name="default_cam"/>
-  <joint name="camera_alias" type="fixed">
-    <parent link="camera_link"/>
-    <child link="default_cam"/>
-    <origin xyz="0 0 0" rpy="0 0 0"/>
-  </joint>
 
 </robot>

@@ -4,6 +4,9 @@ project(apriltag_ros)
 
 set(CMAKE_CXX_STANDARD 14)
 
+# Указываем путь к конфигурации apriltag
+set(apriltag_DIR /usr/local/lib/apriltag/cmake)
+
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(sensor_msgs REQUIRED)
@@ -17,7 +20,7 @@ find_package(apriltag_msgs REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(Threads REQUIRED)
-find_package(apriltag REQUIRED)
+find_package(apriltag REQUIRED)  # ← теперь он найдёт по apriltag_DIR
 find_package(tf2_eigen REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 
@@ -67,9 +70,7 @@ install(TARGETS tag_detector
     RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
 
-
 install(DIRECTORY config/ DESTINATION share/${PROJECT_NAME}/config)
-
 install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})
 
 if(BUILD_TESTING)
