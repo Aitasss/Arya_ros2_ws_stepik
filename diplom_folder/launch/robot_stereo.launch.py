@@ -7,13 +7,11 @@ from ament_index_python.packages import get_package_share_directory
 def generate_launch_description():
     pkg_dir = get_package_share_directory('diplom_folder')
     
-    # URDF файл
     urdf_path = os.path.join(pkg_dir, 'urdf', 'my_robot.urdf')
     with open(urdf_path, 'r') as f:
         robot_desc = f.read()
     
     return LaunchDescription([
-        # 1. Публикация трансформаций робота (URDF → TF)
         Node(
             package='robot_state_publisher',
             executable='robot_state_publisher',
@@ -21,13 +19,11 @@ def generate_launch_description():
             parameters=[{'robot_description': robot_desc}]
         ),
         
-        # 2. Запуск камеры
         ExecuteProcess(
             cmd=['ros2', 'launch', 'diplom_folder', 'camera.launch.py'],
             output='screen'
         ),
         
-        # 3. Запуск детектора AprilTag
         ExecuteProcess(
             cmd=[
                 'ros2', 'run', 'apriltag_ros', 'tag_detector',
@@ -40,41 +36,47 @@ def generate_launch_description():
             output='screen'
         ),
         
-        # Публикация статической трансформации: map → tag
+        # ЕДИНСТВЕННАЯ статика: tag → map
         ExecuteProcess(
             cmd=[
                 'ros2', 'run', 'tf2_ros', 'static_transform_publisher',
-                '--x', '0',        # тег по X 
-                '--y', '0',        # тег  по Y
-                '--z', '-1.0',        # тег по Z
+                '--x', '0',
+                '--y', '0',
+                '--z', '-1.0',
                 '--yaw', '0',
                 '--pitch', '0',
                 '--roll', '0',
-                '--frame-id', 'tag36h11:3', # ID тега как родитель
-                '--child-frame-id', 'map'   # map как ребенок
+                '--frame-id', 'tag36h11:3',
+                '--child-frame-id', 'map'
             ],
             output='screen'
         ),
 
-        # 4. Rviz2 для визуализации
         Node(
             package='rviz2',
             executable='rviz2',
             name='rviz2',
             output='screen'
         ),
-        #5. Запуск узда для записи в YAML
-        Node(
-            package = 'diplom_folder',
-            executable = 'tag_to_yaml',
-            name = 'tag_to_yaml',
-            output = 'screen'
-        ),
-        # Новый узел для публикации map → base_link
+        
         Node(
             package='diplom_folder',
-            executable='map_to_base_publisher',
-            name='map_to_base_publisher',
+            executable='tag_to_yaml',
+            name='tag_to_yaml',
+            output='screen'
+        ),
+        
+        # Узел для вычисления map → base_link (с инверсией)
+        #Node(
+        #    package='diplom_folder',
+        #    executable='map_to_base_publisher',
+        #    name='map_to_base_publisher',
+        #    output='screen'
+        #),
+        Node(
+            package='diplom_folder',
+            executable='map_to_tag_publisher',
+            name='map_to_tag_publisher',
             output='screen'
         ),
     ])

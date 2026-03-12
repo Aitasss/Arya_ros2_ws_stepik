@@ -15,12 +15,10 @@ class MapToTagPublisher(Node):
         
         self.tf_broadcaster = TransformBroadcaster(self)
         
-        # Путь к YAML (где лежат координаты tag относительно map)
         pkg_dir = get_package_share_directory('diplom_folder')
         self.yaml_file = os.path.join(pkg_dir, 'config', 'tag_positions.yaml')
         self.get_logger().info(f'MapToTagPublisher started, reading from {self.yaml_file}')
         
-        # Таймер для публикации трансформации (10 Hz)
         self.timer = self.create_timer(0.1, self.publish_transform)
 
     def read_tag_yaml(self):
@@ -39,19 +37,16 @@ class MapToTagPublisher(Node):
         if not tag_data:
             return
         
-        # Создаем трансформацию map → tag
         t = TransformStamped()
         t.header.stamp = self.get_clock().now().to_msg()
-        t.header.frame_id = 'map'              # родитель
-        t.child_frame_id = 'tag36h11:3'         # ребенок (тег)
+        t.header.frame_id = 'map'
+        t.child_frame_id = 'tag36h11:3'
         
-        # Берем позицию из YAML
         pos = tag_data['position']
         t.transform.translation.x = float(pos['x'])
         t.transform.translation.y = float(pos['y'])
         t.transform.translation.z = float(pos['z'])
         
-        # Берем углы из YAML и преобразуем в кватернион
         orient = tag_data['orientation']
         roll = float(orient['roll_deg']) * math.pi / 180.0
         pitch = float(orient['pitch_deg']) * math.pi / 180.0
@@ -63,7 +58,6 @@ class MapToTagPublisher(Node):
         t.transform.rotation.z = q[2]
         t.transform.rotation.w = q[3]
         
-        # Публикуем трансформацию
         self.tf_broadcaster.sendTransform(t)
         self.get_logger().info(f'Published map → tag at ({pos["x"]}, {pos["y"]}, {pos["z"]})')
 

@@ -8,10 +8,10 @@ apriltag:
       threads: 2
       decimate: 2.0
       blur: 0.0
-      refine: 1
+      refine: true
       sharpening: 0.25
     publish_tf: true
     tag:
       ids: [3]
-      frames: [tag_200mm]
+      frames: [tag36h11:3]
       sizes: [0.2]
