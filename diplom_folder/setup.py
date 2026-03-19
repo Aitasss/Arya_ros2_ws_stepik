@@ -25,7 +25,10 @@ setup(
     entry_points={
         'console_scripts': [
             'tag_to_yaml = diplom_folder.tag_to_yaml:main',
+            'map_to_tag_publisher = diplom_folder.map_to_tag_publisher:main',
             'map_to_base_publisher = diplom_folder.map_to_base_publisher:main',
+            'tag_to_base_publisher = diplom_folder.tag_to_base_publisher:main',
+            'tag_to_camera2_base2 = diplom_folder.tag_to_camera2_base2:main',
         ],
     },
 )

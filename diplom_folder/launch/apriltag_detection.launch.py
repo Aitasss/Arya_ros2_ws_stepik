@@ -1,3 +1,8 @@
+
+# Что делает: Запускает детектор AprilTag.
+# Зачем: Чтобы находить тег на изображении.
+# Ключевой момент: Детектор публикует camera_link → tag36h11:3 в /tf (динамика).
+
 from launch import LaunchDescription
 from launch_ros.actions import Node
 

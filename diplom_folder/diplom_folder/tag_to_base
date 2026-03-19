@@ -1,26 +1,20 @@
-
-# Что делает: Вычисляет и публикует map → base_link в реальном времени.
-# Зачем: Чтобы знать, где находится робот относительно карты.
-# Ключевой момент: Сердце системы — связывает всё воедино.
-
 #!/usr/bin/env python3
 import rclpy
 from rclpy.node import Node
 from tf2_ros import Buffer, TransformListener, TransformBroadcaster
 from geometry_msgs.msg import TransformStamped
 import tf_transformations
-import math
 
-class MapToBasePublisher(Node):
+class TagToBasePublisher(Node):
     def __init__(self):
-        super().__init__('map_to_base_publisher')
+        super().__init__('tag_to_base_publisher')
         
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
         self.tf_broadcaster = TransformBroadcaster(self)
         
-        self.timer = self.create_timer(0.1, self.publish_map_to_base)
-        self.get_logger().info('MapToBasePublisher started')
+        self.timer = self.create_timer(0.1, self.publish_tag_to_base)
+        self.get_logger().info('TagToBasePublisher started')
 
     def matrix_from_transform(self, t):
         trans = [t.translation.x, t.translation.y, t.translation.z]
@@ -43,27 +37,18 @@ class MapToBasePublisher(Node):
         t.rotation.w = quat[3]
         return t
 
-    def publish_map_to_base(self):
+    def publish_tag_to_base(self):
         try:
-            # 1. Получаем map → tag (статическая)
-            map_to_tag = self.tf_buffer.lookup_transform(
-                'map',
-                'tag_fixed',
-                rclpy.time.Time(),
-                timeout=rclpy.duration.Duration(seconds=0.1)
-            )
-            self.get_logger().debug('Got map → tag')
-
-            # 2. Получаем camera_link → tag (динамика от детектора)
+            # 1. Получаем camera_link → tag (от детектора)
             camera_to_tag = self.tf_buffer.lookup_transform(
                 'camera_link',
-                'tag36h11:3',
+                'tag_dynamic',
                 rclpy.time.Time(),
                 timeout=rclpy.duration.Duration(seconds=0.1)
             )
             self.get_logger().debug('Got camera → tag')
 
-            # 3. Получаем base_link → camera_link (статическая из URDF)
+            # 2. Получаем base_link → camera_link (из URDF)
             base_to_camera = self.tf_buffer.lookup_transform(
                 'base_link',
                 'camera_link',
@@ -75,39 +60,35 @@ class MapToBasePublisher(Node):
             # Инвертируем camera → tag в tag → camera
             camera_to_tag_mat = self.matrix_from_transform(camera_to_tag.transform)
             tag_to_camera_mat = tf_transformations.inverse_matrix(camera_to_tag_mat)
-
+            
             # Инвертируем base → camera в camera → base
             base_to_camera_mat = self.matrix_from_transform(base_to_camera.transform)
             camera_to_base_mat = tf_transformations.inverse_matrix(base_to_camera_mat)
 
-            # Перемножаем: map → tag * tag → camera * camera → base
-            map_to_tag_mat = self.matrix_from_transform(map_to_tag.transform)
-            map_to_base_mat = tf_transformations.concatenate_matrices(
-                map_to_tag_mat,
+            # Вычисляем tag → base = tag → camera * camera → base
+            tag_to_base_mat = tf_transformations.concatenate_matrices(
                 tag_to_camera_mat,
                 camera_to_base_mat
             )
 
-            map_to_base_transform = self.transform_from_matrix(map_to_base_mat)
+            tag_to_base_transform = self.transform_from_matrix(tag_to_base_mat)
 
-            
-
-            # Публикуем map → base_link
+            # Публикуем tag → base_link
             t = TransformStamped()
             t.header.stamp = self.get_clock().now().to_msg()
-            t.header.frame_id = 'map'
+            t.header.frame_id = 'tag_dynamic'
             t.child_frame_id = 'base_link'
-            t.transform = map_to_base_transform
+            t.transform = tag_to_base_transform
 
             self.tf_broadcaster.sendTransform(t)
-            self.get_logger().info(f'Published map → base_link')
+            self.get_logger().info(f'Published tag → base_link')
 
         except Exception as e:
             self.get_logger().debug(f'Waiting for transforms: {e}')
 
 def main(args=None):
     rclpy.init(args=args)
-    node = MapToBasePublisher()
+    node = TagToBasePublisher()
     rclpy.spin(node)
     node.destroy_node()
     rclpy.shutdown()

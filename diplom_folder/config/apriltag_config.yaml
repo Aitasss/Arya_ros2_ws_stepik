@@ -13,5 +13,5 @@ apriltag:
     publish_tf: true
     tag:
       ids: [3]
-      frames: [tag36h11:3]
+      frames: [tag_dynamic]
       sizes: [0.2]
